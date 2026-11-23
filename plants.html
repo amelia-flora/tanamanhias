@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tanaman Saya – PlantCare</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/plants.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><i class="bi bi-leaf-fill"></i></div>
+      <div>
+        <div class="brand-name">PlantCare</div>
+        <div class="brand-tagline">Pelacak Perawatan Tanaman</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <a class="nav-item" href="index.html"><i class="bi bi-grid-1x2-fill"></i><span>Dasbor</span></a>
+      <a class="nav-item" href="plants.html"><i class="bi bi-flower2"></i><span>Tanaman Saya</span></a>
+      <div class="nav-section-label">Jadwal Perawatan</div>
+      <a class="nav-item" href="watering.html"><i class="bi bi-droplet-fill"></i><span>Jadwal Penyiraman</span></a>
+      <a class="nav-item" href="fertilizing.html"><i class="bi bi-moisture"></i><span>Jadwal Pemupukan</span></a>
+      <div class="nav-section-label">Riwayat</div>
+      <a class="nav-item" href="history.html"><i class="bi bi-clock-history"></i><span>Riwayat Perawatan</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <img class="user-avatar-sm"
+             src="https://api.dicebear.com/8.x/notionists/svg?seed=PlantLover&backgroundColor=cceaaa"
+             alt="Plant Lover" />
+        <div class="user-info">
+          <div class="user-name">Plant Lover</div>
+          <div class="user-role">Pecinta Tanaman</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Buka/tutup menu">
+          <i class="bi bi-list"></i>
+        </button>
+        <div>
+          <div class="topbar-title">Tanaman Saya</div>
+          <div class="topbar-subtitle">Kelola dan jelajahi koleksi tanamanmu</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbar-date"></span>
+        <div class="topbar-user">
+          <img class="user-avatar"
+               src="https://api.dicebear.com/8.x/notionists/svg?seed=PlantLover&backgroundColor=cceaaa"
+               alt="Plant Lover" />
+          <span class="user-name-top">Plant Lover</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- Search & Filter + Count + Tambah -->
+      <div class="search-filter-bar">
+        <div class="search-wrap">
+          <i class="bi bi-search"></i>
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="Cari berdasarkan nama, kategori, atau lokasi…"
+            autocomplete="off"
+          />
+        </div>
+        <select id="category-filter" class="filter-select">
+          <option value="all">Semua Kategori</option>
+          <!-- Opsi diisi oleh plants.js -->
+        </select>
+        <span class="plants-count-badge" id="plants-count">— Tanaman</span>
+        <button class="btn-tambah" id="btn-tambah-tanaman" onclick="openPlantModal()">
+          <i class="bi bi-plus-lg"></i> Tambah Tanaman
+        </button>
+      </div>
+
+      <!-- Plants Grid -->
+      <div class="plants-grid" id="plants-grid">
+        <!-- Dirender oleh plants.js -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="plants-empty" class="empty-state" style="display:none;">
+        <div class="empty-icon"><i class="bi bi-search"></i></div>
+        <h3>Tanaman tidak ditemukan</h3>
+        <p>Coba kata kunci atau filter kategori yang berbeda.</p>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODAL TAMBAH / EDIT TANAMAN
+     ═══════════════════════════════════════════════ -->
+<div class="crud-modal-overlay" id="crud-modal-overlay" onclick="closePlantModal(event)">
+  <div class="crud-modal" id="crud-modal">
+    <div class="crud-modal-header">
+      <h2 class="crud-modal-title" id="modal-title">Tambah Tanaman</h2>
+      <button class="crud-modal-close" onclick="closePlantModal(null, true)" aria-label="Tutup">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="crud-modal-body">
+      <form id="plant-form" onsubmit="savePlant(event)">
+        <input type="hidden" id="form-plant-id" value="" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nama Tanaman <span class="required">*</span></label>
+            <input type="text" id="form-name" class="form-input" placeholder="Contoh: Monstera Deliciosa" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kategori <span class="required">*</span></label>
+            <select id="form-category" class="form-input" required>
+              <option value="">-- Pilih Kategori --</option>
+              <option value="Tanaman Tropis">Tanaman Tropis</option>
+              <option value="Tanaman Indoor">Tanaman Indoor</option>
+              <option value="Tanaman Hias Daun">Tanaman Hias Daun</option>
+              <option value="Sukulen">Sukulen</option>
+              <option value="Kaktus">Kaktus</option>
+              <option value="Tanaman Lain">Tanaman Lain</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Lokasi Penempatan <span class="required">*</span></label>
+            <input type="text" id="form-location" class="form-input" placeholder="Contoh: Ruang Tamu" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tanggal Diperoleh</label>
+            <input type="date" id="form-acquired" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Deskripsi</label>
+          <textarea id="form-description" class="form-input form-textarea" placeholder="Deskripsi singkat tentang tanaman ini…" rows="3"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Frekuensi Penyiraman (hari) <span class="required">*</span></label>
+            <input type="number" id="form-watering-freq" class="form-input" min="1" max="90" placeholder="7" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Frekuensi Pemupukan <span class="required">*</span></label>
+            <select id="form-fertilizing-freq" class="form-input" required>
+              <option value="">-- Pilih Frekuensi --</option>
+              <option value="7">Setiap minggu (7 hari)</option>
+              <option value="14">Setiap 2 minggu (14 hari)</option>
+              <option value="30" selected>Setiap bulan (30 hari)</option>
+              <option value="45">Setiap 45 hari</option>
+              <option value="60">Setiap 2 bulan (60 hari)</option>
+              <option value="90">Setiap 3 bulan (90 hari)</option>
+              <option value="180">Setiap 6 bulan (180 hari)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Jenis Pupuk</label>
+            <input type="text" id="form-fertilizer-type" class="form-input" placeholder="Contoh: Pupuk Cair Organik" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">URL Foto Tanaman</label>
+            <input type="url" id="form-image" class="form-input" placeholder="https://…" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-batal" onclick="closePlantModal(null, true)">Batal</button>
+          <button type="submit" class="btn-simpan" id="btn-simpan">
+            <i class="bi bi-check-lg"></i> Simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODAL KONFIRMASI HAPUS
+     ═══════════════════════════════════════════════ -->
+<div class="crud-modal-overlay" id="delete-modal-overlay" onclick="closeDeleteModal(event)">
+  <div class="crud-modal delete-modal">
+    <div class="delete-modal-icon"><i class="bi bi-trash3-fill"></i></div>
+    <h2 class="delete-modal-title">Hapus Tanaman?</h2>
+    <p class="delete-modal-msg" id="delete-modal-msg">Apakah kamu yakin ingin menghapus tanaman ini? Tindakan ini tidak dapat dibatalkan.</p>
+    <div class="form-actions" style="justify-content:center;margin-top:0">
+      <button class="btn-batal" onclick="closeDeleteModal(null, true)">Batal</button>
+      <button class="btn-hapus-confirm" id="btn-hapus-confirm" onclick="confirmDelete()">
+        <i class="bi bi-trash3"></i> Ya, Hapus
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/dummy-data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/plants.js"></script>
+</body>
+</html>

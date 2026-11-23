@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detail Tanaman – PlantCare</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/plants.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><i class="bi bi-leaf-fill"></i></div>
+      <div>
+        <div class="brand-name">PlantCare</div>
+        <div class="brand-tagline">Pelacak Perawatan Tanaman</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <a class="nav-item" href="index.html"><i class="bi bi-grid-1x2-fill"></i><span>Dasbor</span></a>
+      <a class="nav-item" href="plants.html"><i class="bi bi-flower2"></i><span>Tanaman Saya</span></a>
+      <div class="nav-section-label">Jadwal Perawatan</div>
+      <a class="nav-item" href="watering.html"><i class="bi bi-droplet-fill"></i><span>Jadwal Penyiraman</span></a>
+      <a class="nav-item" href="fertilizing.html"><i class="bi bi-moisture"></i><span>Jadwal Pemupukan</span></a>
+      <div class="nav-section-label">Riwayat</div>
+      <a class="nav-item" href="history.html"><i class="bi bi-clock-history"></i><span>Riwayat Perawatan</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <img class="user-avatar-sm"
+             src="https://api.dicebear.com/8.x/notionists/svg?seed=PlantLover&backgroundColor=cceaaa"
+             alt="Plant Lover" />
+        <div class="user-info">
+          <div class="user-name">Plant Lover</div>
+          <div class="user-role">Pecinta Tanaman</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Buka/tutup menu">
+          <i class="bi bi-list"></i>
+        </button>
+        <div>
+          <div class="topbar-title" id="detail-topbar-title">Detail Tanaman</div>
+          <div class="topbar-subtitle">Lihat informasi lengkap tentang tanaman</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbar-date"></span>
+        <div class="topbar-user">
+          <img class="user-avatar"
+               src="https://api.dicebear.com/8.x/notionists/svg?seed=PlantLover&backgroundColor=cceaaa"
+               alt="Plant Lover" />
+          <span class="user-name-top">Plant Lover</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content" id="detail-page-content">
+      <!-- Dirender oleh skrip di bawah -->
+    </div>
+
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/dummy-data.js"></script>
+<script src="js/main.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ── Pemformat Tanggal ───────────────────────────────────────────────────────
+  function fmt(isoStr) {
+    if (!isoStr) return '—';
+    const d = new Date(isoStr + 'T00:00:00');
+    return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function fmtShort(isoStr) {
+    if (!isoStr) return '—';
+    const d = new Date(isoStr + 'T00:00:00');
+    const today = new Date(); today.setHours(0,0,0,0);
+    const target = new Date(d); target.setHours(0,0,0,0);
+    const diff = Math.round((target - today) / 86400000);
+    if (diff === 0) return 'Hari Ini';
+    if (diff === 1) return 'Besok';
+    if (diff < 0)  return `${Math.abs(diff)} hari terlambat`;
+    return `${diff} hari lagi (${d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })})`;
+  }
+
+  function careTypePill(type) {
+    const lower = (type || '').toLowerCase();
+    let cls  = lower.includes('siram') ? 'watering' : lower.includes('pupuk') ? 'fertilizing' : 'other';
+    let icon = lower.includes('siram') ? 'bi-droplet-fill' : lower.includes('pupuk') ? 'bi-moisture' : 'bi-tools';
+    return `<span class="care-type-pill ${cls}"><i class="bi ${icon}"></i> ${type}</span>`;
+  }
+
+  // ── Render: Tanaman Tidak Ditemukan ──────────────────────────────────────────
+  function renderNotFound() {
+    const container = document.getElementById('detail-page-content');
+    container.innerHTML = `
+      <div class="not-found-state">
+        <div class="nf-icon"><i class="bi bi-exclamation-circle"></i></div>
+        <h2>Tanaman tidak ditemukan</h2>
+        <p>Tanaman yang kamu cari tidak ada. Mungkin sudah dihapus atau tautannya salah.</p>
+        <a href="plants.html" class="btn-primary"><i class="bi bi-arrow-left"></i> Kembali ke Tanaman Saya</a>
+      </div>`;
+  }
+
+  // ── Render Detail Tanaman ─────────────────────────────────────────────────────
+  function renderDetail(plant) {
+    const watering    = getWateringByPlant(plant.id);
+    const fertilizing = getFertilizingByPlant(plant.id);
+    const history     = getCareHistoryByPlant(plant.id).slice(0, 3);
+
+    const titleEl = document.getElementById('detail-topbar-title');
+    if (titleEl) titleEl.textContent = plant.name;
+    document.title = `${plant.name} – PlantCare`;
+
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    const myPlantsLink = document.querySelector('.nav-item[href="plants.html"]');
+    if (myPlantsLink) myPlantsLink.classList.add('active');
+
+    const historyRows = history.length
+      ? history.map(h => `
+          <tr>
+            <td>${careTypePill(h.type)}</td>
+            <td>${fmt(h.date)}</td>
+            <td style="color:var(--secondary-text);font-size:13px">${h.notes || '—'}</td>
+            <td><span class="badge-status completed"><i class="bi bi-check-circle"></i> Selesai</span></td>
+          </tr>
+        `).join('')
+      : `<tr><td colspan="4" style="text-align:center;color:var(--secondary-text);padding:28px">Belum ada riwayat perawatan.</td></tr>`;
+
+    const container = document.getElementById('detail-page-content');
+    container.innerHTML = `
+      <!-- Tombol Kembali -->
+      <a href="plants.html" class="detail-back-btn">
+        <i class="bi bi-arrow-left"></i> Kembali ke Tanaman Saya
+      </a>
+
+      <!-- Layout Utama -->
+      <div class="detail-layout">
+
+        <!-- ── Kolom Kiri ── -->
+        <div class="detail-left">
+          <div class="detail-img-wrap">
+            <img class="detail-img"
+                 src="${plant.image}"
+                 alt="${plant.name}"
+                 onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=800&auto=format&fit=crop&q=80'" />
+          </div>
+
+          <div class="detail-quick-info">
+            <div class="detail-quick-row">
+              <div class="detail-quick-icon"><i class="bi bi-geo-alt-fill"></i></div>
+              <div>
+                <div class="detail-quick-label">Lokasi</div>
+                <div class="detail-quick-value">${plant.location}</div>
+              </div>
+            </div>
+            <div class="detail-quick-row">
+              <div class="detail-quick-icon"><i class="bi bi-tag-fill"></i></div>
+              <div>
+                <div class="detail-quick-label">Kategori</div>
+                <div class="detail-quick-value">${plant.category}</div>
+              </div>
+            </div>
+            <div class="detail-quick-row">
+              <div class="detail-quick-icon"><i class="bi bi-calendar-heart-fill"></i></div>
+              <div>
+                <div class="detail-quick-label">Tanggal Diperoleh</div>
+                <div class="detail-quick-value">${fmt(plant.acquiredDate)}</div>
+              </div>
+            </div>
+            <div class="detail-quick-row">
+              <div class="detail-quick-icon"><i class="bi bi-droplet-fill" style="color:var(--primary-green)"></i></div>
+              <div>
+                <div class="detail-quick-label">Frekuensi Penyiraman</div>
+                <div class="detail-quick-value">Setiap ${plant.wateringFrequency} hari</div>
+              </div>
+            </div>
+            <div class="detail-quick-row">
+              <div class="detail-quick-icon"><i class="bi bi-moisture" style="color:var(--dark-green)"></i></div>
+              <div>
+                <div class="detail-quick-label">Frekuensi Pemupukan</div>
+                <div class="detail-quick-value">Setiap ${plant.fertilizingFrequency} hari</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Kolom Kanan ── -->
+        <div class="detail-right">
+
+          <!-- Nama + kategori -->
+          <div>
+            <span class="detail-category-pill"><i class="bi bi-flower2"></i> ${plant.category}</span>
+            <h1 class="detail-name">${plant.name}</h1>
+          </div>
+
+          <!-- Deskripsi -->
+          <div class="detail-description">
+            <p>${plant.description}</p>
+          </div>
+
+          <!-- Info Penyiraman -->
+          <div class="detail-info-card card-base">
+            <div class="detail-info-card-header watering">
+              <div class="detail-info-card-icon watering"><i class="bi bi-droplet-fill"></i></div>
+              <div>
+                <div class="detail-info-card-title">Informasi Penyiraman</div>
+                <div class="detail-info-card-subtitle">Jaga tanaman tetap terhidrasi</div>
+              </div>
+            </div>
+            <div class="detail-info-grid">
+              <div class="detail-info-item">
+                <div class="detail-info-item-label">Frekuensi</div>
+                <div class="detail-info-item-value">Setiap ${plant.wateringFrequency} hari</div>
+              </div>
+              <div class="detail-info-item">
+                <div class="detail-info-item-label">Penyiraman Berikutnya</div>
+                <div class="detail-info-item-value">${fmtShort(plant.nextWateringDate)}</div>
+              </div>
+              <div class="detail-info-item">
+                <div class="detail-info-item-label">Terakhir Disiram</div>
+                <div class="detail-info-item-value">${fmt(plant.lastWateringDate)}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info Pemupukan -->
+          <div class="detail-info-card card-base">
+            <div class="detail-info-card-header fertilizing">
+              <div class="detail-info-card-icon fertilizing"><i class="bi bi-moisture"></i></div>
+              <div>
+                <div class="detail-info-card-title">Informasi Pemupukan</div>
+                <div class="detail-info-card-subtitle">Beri nutrisi secara rutin</div>
+              </div>
+            </div>
+            <div class="detail-info-grid">
+              <div class="detail-info-item">
+                <div class="detail-info-item-label">Jenis Pupuk</div>
+                <div class="detail-info-item-value">${plant.fertilizerType}</div>
+              </div>
+              <div class="detail-info-item">
+                <div class="detail-info-item-label">Frekuensi</div>
+                <div class="detail-info-item-value">Setiap ${plant.fertilizingFrequency} hari</div>
+              </div>
+              <div class="detail-info-item">
+                <div class="detail-info-item-label">Pemupukan Berikutnya</div>
+                <div class="detail-info-item-value">${fmtShort(plant.nextFertilizingDate)}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Riwayat Perawatan Terbaru -->
+          <div class="detail-info-card card-base">
+            <div class="detail-info-card-header" style="background:var(--cream)">
+              <div class="detail-info-card-icon" style="background:var(--light-green);color:var(--dark-green)"><i class="bi bi-clock-history"></i></div>
+              <div>
+                <div class="detail-info-card-title">Riwayat Perawatan Terbaru</div>
+                <div class="detail-info-card-subtitle">3 aktivitas perawatan terakhir</div>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="care-history-table">
+                <thead>
+                  <tr>
+                    <th>Jenis</th>
+                    <th>Tanggal</th>
+                    <th>Catatan</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>${historyRows}</tbody>
+              </table>
+            </div>
+          </div>
+
+        </div><!-- /detail-right -->
+      </div><!-- /detail-layout -->
+    `;
+  }
+
+  // ── Entry Point ───────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const params  = new URLSearchParams(window.location.search);
+    const plantId = params.get('id');
+
+    if (!plantId) { renderNotFound(); return; }
+
+    const plant = getPlantById(plantId);
+    if (!plant)  { renderNotFound(); return; }
+
+    renderDetail(plant);
+  });
+})();
+</script>
+</body>
+</html>
