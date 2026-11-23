@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Riwayat Perawatan – PlantCare</title>
+
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- PlantCare CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/history.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── SIDEBAR (sama persis dengan index.html) ───────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><i class="bi bi-leaf-fill"></i></div>
+      <div>
+        <div class="brand-name">PlantCare</div>
+        <div class="brand-tagline">Plant Care Tracker</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu Utama</div>
+      <a class="nav-item" href="index.html">
+        <i class="bi bi-grid-1x2-fill"></i>
+        <span>Dasbor</span>
+      </a>
+      <a class="nav-item" href="plants.html">
+        <i class="bi bi-flower2"></i>
+        <span>Tanaman Saya</span>
+      </a>
+
+      <div class="nav-section-label">Jadwal Perawatan</div>
+      <a class="nav-item" href="watering.html">
+        <i class="bi bi-droplet-fill"></i>
+        <span>Jadwal Penyiraman</span>
+      </a>
+      <a class="nav-item" href="fertilizing.html">
+        <i class="bi bi-moisture"></i>
+        <span>Jadwal Pemupukan</span>
+      </a>
+
+      <div class="nav-section-label">Riwayat</div>
+      <a class="nav-item" href="history.html">
+        <i class="bi bi-clock-history"></i>
+        <span>Riwayat Perawatan</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <img class="user-avatar-sm"
+             src="https://api.dicebear.com/8.x/notionists/svg?seed=PlantLover&backgroundColor=cceaaa"
+             alt="Plant Lover" />
+        <div class="user-info">
+          <div class="user-name">Plant Lover</div>
+          <div class="user-role">Pecinta Tanaman</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ── MAIN CONTENT ─────────────────────────────────────── -->
+  <main class="main-content">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Buka/tutup menu">
+          <i class="bi bi-list"></i>
+        </button>
+        <div>
+          <div class="topbar-title">Riwayat Perawatan</div>
+          <div class="topbar-subtitle">Catatan semua perawatan yang sudah dilakukan</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbar-date"></span>
+        <div class="topbar-user">
+          <img class="user-avatar"
+               src="https://api.dicebear.com/8.x/notionists/svg?seed=PlantLover&backgroundColor=cceaaa"
+               alt="Plant Lover" />
+          <span class="user-name-top">Plant Lover</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <div class="ch-toolbar">
+        <p id="ch-count"></p>
+        <button class="btn-primary" id="ch-add"><i class="bi bi-plus-lg"></i> Tambah Riwayat</button>
+      </div>
+
+      <section class="ch-stats" id="ch-stats"></section>
+
+      <div class="ch-tools">
+        <div class="ch-search"><i class="bi bi-search"></i>
+          <input type="search" id="ch-search" placeholder="Cari nama tanaman atau catatan…" aria-label="Cari riwayat" />
+        </div>
+        <select id="ch-type" aria-label="Filter jenis perawatan">
+          <option value="">Semua jenis</option>
+          <option value="Watering">Penyiraman</option>
+          <option value="Fertilizing">Pemupukan</option>
+        </select>
+        <select id="ch-plant" aria-label="Filter tanaman"><option value="">Semua tanaman</option></select>
+        <select id="ch-sort" aria-label="Urutkan">
+          <option value="desc">Terbaru dulu</option>
+          <option value="asc">Terlama dulu</option>
+        </select>
+      </div>
+
+      <div class="card-base ch-card">
+        <table class="ch-table">
+          <thead>
+            <tr><th>Tanggal</th><th>Tanaman</th><th>Jenis</th><th>Catatan</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="ch-body"></tbody>
+        </table>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /app-shell -->
+
+<!-- Modal tambah / ubah -->
+<div class="ch-modal" id="ch-modal" hidden>
+  <div class="ch-dialog" role="dialog" aria-modal="true" aria-labelledby="ch-modal-title">
+    <h2 id="ch-modal-title">Tambah Riwayat</h2>
+    <label for="ch-f-plant">Tanaman</label>
+    <select id="ch-f-plant"></select>
+    <label for="ch-f-type">Jenis perawatan</label>
+    <select id="ch-f-type">
+      <option value="Watering">Penyiraman</option>
+      <option value="Fertilizing">Pemupukan</option>
+    </select>
+    <label for="ch-f-date">Tanggal</label>
+    <input type="date" id="ch-f-date" />
+    <label for="ch-f-notes">Catatan</label>
+    <textarea id="ch-f-notes" rows="3" placeholder="Opsional"></textarea>
+    <p class="ch-error" id="ch-error"></p>
+    <div class="ch-actions">
+      <button class="ch-btn" id="ch-cancel">Batal</button>
+      <button class="btn-primary" id="ch-save">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal hapus -->
+<div class="ch-modal" id="ch-del-modal" hidden>
+  <div class="ch-dialog" role="dialog" aria-modal="true">
+    <h2>Hapus Riwayat?</h2>
+    <p class="ch-muted" id="ch-del-text"></p>
+    <div class="ch-actions">
+      <button class="ch-btn" id="ch-del-no">Batal</button>
+      <button class="ch-btn ch-btn-danger" id="ch-del-yes"><i class="bi bi-trash3"></i> Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Scripts (urutan sama dengan index.html) ───────────── -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/dummy-data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/history.js"></script>
+</body>
+</html>
