@@ -63,10 +63,19 @@
     });
   }
 
-  // ── Init ──────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
     setTopbarDate();
     setActiveNav();
     initSidebar();
+    // Authentication guard: redirect unauthenticated users to login page
+    const currentUser = localStorage.getItem('plantcare_user');
+    const isLoginPage = window.location.pathname.endsWith('login.html');
+    if (!currentUser && !isLoginPage) {
+      window.location.replace('login.html');
+    }
+    if (currentUser && isLoginPage) {
+      window.location.replace('index.html');
+    }
   });
 })();

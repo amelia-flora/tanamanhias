@@ -36,16 +36,16 @@ function formatDateDisplay(isoStr) {
   return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-// ── Foto Tanaman Asli (Unsplash Berkualitas Tinggi) ──────────────────────────
+// ── Foto Tanaman Asli (Aset Lokal Berkualitas Tinggi) ─────────────────────────
 const PLANT_IMAGES = {
-  monstera:     'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=600&auto=format&fit=crop&q=80',
-  pothos:       'https://images.unsplash.com/photo-1617173944883-6ffbd35d584d?w=600&auto=format&fit=crop&q=80',
-  snake:        'https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=600&auto=format&fit=crop&q=80',
-  peacelily:    'https://images.unsplash.com/photo-1597055181300-e3633a917c9c?w=600&auto=format&fit=crop&q=80',
-  calathea:     'https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=600&auto=format&fit=crop&q=80',
-  philodendron: 'https://images.unsplash.com/photo-1602928321679-560bb453f190?w=600&auto=format&fit=crop&q=80',
-  zz:           'https://images.unsplash.com/photo-1632207691143-643e2a9a9361?w=600&auto=format&fit=crop&q=80',
-  fiddle:       'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?w=600&auto=format&fit=crop&q=80',
+  monstera:     'assets/images/monstera.jpg',
+  pothos:       'assets/images/pothos.jpg',
+  snake:        'assets/images/snake.jpg',
+  peacelily:    'assets/images/peacelily.jpg',
+  calathea:     'assets/images/calathea.jpg',
+  philodendron: 'assets/images/philodendron.jpg',
+  zz:           'assets/images/zz.jpg',
+  fiddle:       'assets/images/fiddle.jpg',
   welcome:      'assets/images/rosepink.jpg',
 };
 
@@ -304,13 +304,31 @@ function getFertilizingByPlant(plantId) {
 // Muat tanaman yang tersimpan dari sesi sebelumnya (dari CRUD)
 (function () {
   try {
+    const defaultImageMap = {
+      1: PLANT_IMAGES.monstera,
+      2: PLANT_IMAGES.pothos,
+      3: PLANT_IMAGES.snake,
+      4: PLANT_IMAGES.peacelily,
+      5: PLANT_IMAGES.calathea,
+      6: PLANT_IMAGES.philodendron,
+      7: PLANT_IMAGES.zz,
+      8: PLANT_IMAGES.fiddle,
+    };
+
     const saved = localStorage.getItem('plantcare_plants');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length >= 8) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
         // Ganti isi array global dengan data tersimpan
         plants.length = 0;
-        parsed.forEach(function (p) { plants.push(p); });
+        parsed.forEach(function (p) {
+          // Perbarui foto tanaman bawaan ke foto lokal asli jika masih URL lama
+          if (defaultImageMap[p.id] && (!p.image || p.image.includes('unsplash.com') || p.image.includes('photo-') || !p.image.startsWith('assets/images/'))) {
+            p.image = defaultImageMap[p.id];
+          }
+          plants.push(p);
+        });
+        localStorage.setItem('plantcare_plants', JSON.stringify(plants));
       }
     }
   } catch (e) {

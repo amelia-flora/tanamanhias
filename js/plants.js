@@ -193,7 +193,7 @@
     const fertilizingFreq = parseInt(document.getElementById('form-fertilizing-freq').value);
     const fertilizerType  = document.getElementById('form-fertilizer-type').value.trim() || 'Pupuk Cair Organik';
     const image           = document.getElementById('form-image').value.trim() ||
-                            'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=600&auto=format&fit=crop&q=80';
+                            'assets/images/monstera.jpg';
 
     if (id) {
       // Update tanaman yang ada
